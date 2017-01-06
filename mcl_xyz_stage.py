@@ -6,16 +6,13 @@ Created on Jul 27, 2014
 from __future__ import absolute_import, print_function, division
 from ScopeFoundry import HardwareComponent
 try:
-    from equipment.mcl_nanodrive import MCLNanoDrive
+    from .mcl_nanodrive import MCLNanoDrive
 except Exception as err:
     print("Cannot load required modules for MclXYZStage:", err)
 from qtpy import QtCore
 
 
-class MclXYZStage(HardwareComponent):
-    
-
-
+class MclXYZStageHW(HardwareComponent):
     
     def setup(self):
         self.name = 'mcl_xyz_stage'
