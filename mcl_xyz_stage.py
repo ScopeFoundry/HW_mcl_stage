@@ -118,11 +118,12 @@ class MclXYZStageHW(HardwareComponent):
     
     @QtCore.Slot()
     def read_pos(self):
-        print("read_pos")
-        self.x_position.read_from_hardware()
-        self.y_position.read_from_hardware()
-        if self.nanodrive.num_axes > 2:
-            self.z_position.read_from_hardware()
+        self.log.debug("read_pos")
+        if self.settings['connected']:
+            self.x_position.read_from_hardware()
+            self.y_position.read_from_hardware()
+            if self.nanodrive.num_axes > 2:
+                self.z_position.read_from_hardware()
         
     def connect(self):
         if self.debug_mode.val: print("connecting to mcl_xyz_stage")
@@ -168,10 +169,11 @@ class MclXYZStageHW(HardwareComponent):
             lq.hardware_set_func = None
         
         #disconnect hardware
-        self.nanodrive.close()
+        if hasattr(self, 'nanodrive'):
+            self.nanodrive.close()
         
-        # clean up hardware object
-        del self.nanodrive
+            # clean up hardware object
+            del self.nanodrive
         
     @property
     def v_axis_id(self):
