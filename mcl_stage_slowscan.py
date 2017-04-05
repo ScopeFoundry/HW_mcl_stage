@@ -27,8 +27,8 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
         S = self.settings
         
         coords = [None, None, None]
-        coords[self.ax_map(S['h_axis'])] = h
-        coords[self.ax_map(S['v_axis'])] = v
+        coords[self.ax_map[S['h_axis']]] = h
+        coords[self.ax_map[S['v_axis']]] = v
         
         #self.stage.move_pos_slow(x,y,None)
         self.stage.move_pos_slow(*coords)
@@ -43,8 +43,8 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
         #self.stage.x_position.update_value(x)
         S = self.settings        
         coords = [None, None, None]
-        coords[self.ax_map(S['h_axis'])] = h
-        coords[self.ax_map(S['v_axis'])] = v
+        coords[self.ax_map[S['h_axis']]] = h
+        coords[self.ax_map[S['v_axis']]] = v
         self.stage.move_pos_fast(*coords)
         #self.stage.move_pos_fast(x, y, None)
         #self.current_stage_pos_arrow.setPos(x, y)
@@ -88,7 +88,7 @@ class MCLStage3DStackSlowScan(MCLStage2DFrameSlowScan):
         
         stack_pos_i = stack_range.array[frame_i]
         coords = [None, None, None]
-        coords[self.ax_map(S['stack_axis'])] = stack_pos_i
+        coords[self.ax_map[S['stack_axis']]] = stack_pos_i
         
         self.stage.move_pos_slow(*coords)
         self.stage.settings.x_position.read_from_hardware()
