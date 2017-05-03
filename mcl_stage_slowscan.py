@@ -2,7 +2,7 @@ from __future__ import division, print_function
 #import numpy as np
 from ScopeFoundry.scanning import BaseRaster2DSlowScan, BaseRaster2DFrameSlowScan
 #from ScopeFoundry import Measurement, LQRange
-#import time
+import time
 
 class MCLStage2DSlowScan(BaseRaster2DSlowScan):
     
@@ -97,3 +97,13 @@ class MCLStage3DStackSlowScan(MCLStage2DFrameSlowScan):
         
 
 
+class Delay_MCL_2DSlowScan(MCLStage2DSlowScan):
+    
+    name = 'Delay_MCL_2DSlowScan'
+
+    def scan_specific_setup(self):
+        self.settings['pixel_time'] = 0.01
+        self.settings.pixel_time.change_readonly(False)
+        
+    def collect_pixel(self, pixel_num, k, j, i):
+        time.sleep(self.settings['pixel_time'])
