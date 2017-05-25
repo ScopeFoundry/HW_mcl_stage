@@ -2,7 +2,7 @@ from __future__ import division, print_function
 #import numpy as np
 from ScopeFoundry.scanning import BaseRaster2DSlowScan, BaseRaster2DFrameSlowScan
 #from ScopeFoundry import Measurement, LQRange
-#import time
+import time
 
 class MCLStage2DSlowScan(BaseRaster2DSlowScan):
     
@@ -27,8 +27,8 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
         S = self.settings
         
         coords = [None, None, None]
-        coords[self.ax_map(S['h_axis'])] = h
-        coords[self.ax_map(S['v_axis'])] = v
+        coords[self.ax_map[S['h_axis']]] = h
+        coords[self.ax_map[S['v_axis']]] = v
         
         #self.stage.move_pos_slow(x,y,None)
         self.stage.move_pos_slow(*coords)
@@ -43,8 +43,8 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
         #self.stage.x_position.update_value(x)
         S = self.settings        
         coords = [None, None, None]
-        coords[self.ax_map(S['h_axis'])] = h
-        coords[self.ax_map(S['v_axis'])] = v
+        coords[self.ax_map[S['h_axis']]] = h
+        coords[self.ax_map[S['v_axis']]] = v
         self.stage.move_pos_fast(*coords)
         #self.stage.move_pos_fast(x, y, None)
         #self.current_stage_pos_arrow.setPos(x, y)
@@ -88,7 +88,7 @@ class MCLStage3DStackSlowScan(MCLStage2DFrameSlowScan):
         
         stack_pos_i = stack_range.array[frame_i]
         coords = [None, None, None]
-        coords[self.ax_map(S['stack_axis'])] = stack_pos_i
+        coords[self.ax_map[S['stack_axis']]] = stack_pos_i
         
         self.stage.move_pos_slow(*coords)
         self.stage.settings.x_position.read_from_hardware()
@@ -97,3 +97,13 @@ class MCLStage3DStackSlowScan(MCLStage2DFrameSlowScan):
         
 
 
+class Delay_MCL_2DSlowScan(MCLStage2DSlowScan):
+    
+    name = 'Delay_MCL_2DSlowScan'
+
+    def scan_specific_setup(self):
+        self.settings['pixel_time'] = 0.01
+        self.settings.pixel_time.change_readonly(False)
+        
+    def collect_pixel(self, pixel_num, k, j, i):
+        time.sleep(self.settings['pixel_time'])
