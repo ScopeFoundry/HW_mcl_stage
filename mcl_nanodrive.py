@@ -3,6 +3,7 @@ import ctypes
 from ctypes import c_int, c_byte, c_ubyte, c_short, c_double, cdll, pointer, byref
 import time
 import numpy as np
+import threading
 
 
 ### IMPORTANT NOTE: DLL's of the same MADLIB version can be different for different
@@ -85,21 +86,26 @@ class MCLNanoDrive(object):
     def __init__(self, debug=False):
         self.debug = debug
         
+        self.lock = threading.Lock()
+        
         self.MCL_ERROR_CODES = MCL_ERROR_CODES
         
         ver = c_short()
         rev = c_short()
-        madlib.MCL_DLLVersion(byref(ver), byref(rev))
+        with self.lock:
+            madlib.MCL_DLLVersion(byref(ver), byref(rev))
         if self.debug:
             print("MCL_DLLVersion", ver.value, rev.value)
             print("madlib.MCL_CorrectDriverVersion():", madlib.MCL_CorrectDriverVersion())
         if not madlib.MCL_CorrectDriverVersion():
             print("MCL_CorrectDriverVersion is False")
         
-        handle = self._handle = madlib.MCL_InitHandle()
+        with self.lock:
+            handle = self._handle = madlib.MCL_InitHandle()
         assert handle > 0
 
-        dev_attached = madlib.MCL_DeviceAttached(2000, handle)
+        with self.lock:
+            dev_attached = madlib.MCL_DeviceAttached(2000, handle)
         print("dev_attached", dev_attached)
 
         if self.debug: print("handle:", hex(handle))
@@ -108,11 +114,13 @@ class MCLNanoDrive(object):
             print("MCLNanoDrive failed to grab device handle ", hex(handle))
 
         self.prodinfo = MCLProductInformation()
-        madlib.MCL_GetProductInfo(byref(self.prodinfo), handle)
+        with self.lock:
+            madlib.MCL_GetProductInfo(byref(self.prodinfo), handle)
         
         if self.debug: self.prodinfo.print_info()
         
-        self.device_serial_number = madlib.MCL_GetSerialNumber(handle)
+        with self.lock:
+            self.device_serial_number = madlib.MCL_GetSerialNumber(handle)
         if self.debug: print("MCL_GetSerialNumber", self.device_serial_number)
         
         self.cal_X = None
@@ -131,8 +139,8 @@ class MCLNanoDrive(object):
                 continue
             
             self.num_axes += 1
-            
-            cal = madlib.MCL_GetCalibration(axnum, handle)
+            with self.lock:       
+                cal = madlib.MCL_GetCalibration(axnum, handle)
 
             setattr(self, 'cal_%s' % axname, cal)
             self.cal[axnum] = cal
@@ -204,7 +212,8 @@ class MCLNanoDrive(object):
         self.close()
         
     def close(self):
-        madlib.MCL_ReleaseHandle(self._handle)
+        with self.lock:       
+            madlib.MCL_ReleaseHandle(self._handle)
         
     def move_rel(self, dx, dy, dz=0):
         pass
@@ -231,7 +240,8 @@ class MCLNanoDrive(object):
         if self.debug: print("set_pos_ax ", pos, axis)
         assert 1 <= axis <= self.num_axes
         assert 0 <= pos <= self.cal[axis]
-        self.handle_err(madlib.MCL_SingleWriteN(c_double(pos), axis, self._handle))
+        with self.lock:
+            self.handle_err(madlib.MCL_SingleWriteN(c_double(pos), axis, self._handle))
         
     
     def get_pos_ax(self, axis):
@@ -247,14 +257,16 @@ class MCLNanoDrive(object):
         return (self.x_pos, self.y_pos, self.z_pos)
     
     def singleReadN(self, axis):
-        resp = madlib.MCL_SingleReadN(axis, self._handle)
+        with self.lock:
+            resp = madlib.MCL_SingleReadN(axis, self._handle)
         if resp in self.MCL_ERROR_CODES:
             #raise IOError(self.MCL_ERROR_CODES[resp])
             print('singleReadN', self.MCL_ERROR_CODES[resp])
         return resp
     
     def monitorN(self, pos, axis):
-        resp = madlib.MCL_MonitorN(pos, axis, self._handle)
+        with self.lock:
+            resp = madlib.MCL_MonitorN(pos, axis, self._handle)
         if resp in self.MCL_ERROR_CODES:
             #raise IOError(self.MCL_ERROR_CODES[resp])
             print('monitorN', pos, axis, self.MCL_ERROR_CODES[resp])        
@@ -264,7 +276,8 @@ class MCLNanoDrive(object):
         xCom = c_double()
         yCom = c_double()
         zCom = c_double()
-        resp = madlib.MCL_GetCommandedPosition(byref(xCom), byref(yCom), byref(zCom), self._handle)
+        with self.lock:
+            resp = madlib.MCL_GetCommandedPosition(byref(xCom), byref(yCom), byref(zCom), self._handle)
         if resp < 0:
             #raise IOError(self.MCL_ERROR_CODES[resp])
             print('getCommandedPosition',  self.MCL_ERROR_CODES[resp])        
