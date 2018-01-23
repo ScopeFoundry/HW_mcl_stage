@@ -8,7 +8,9 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
     
     name = "MCLStage2DSlowScan"
     def __init__(self, app):
-        BaseRaster2DSlowScan.__init__(self, app, h_limits=(0,75), v_limits=(0,75), h_unit="um", v_unit="um")        
+        BaseRaster2DSlowScan.__init__(self, app, h_limits=(0,75), v_limits=(0,75),
+                                      h_spinbox_step = 0.1, v_spinbox_step=0.1,
+                                      h_unit="um", v_unit="um")        
     
     def setup(self):
         BaseRaster2DSlowScan.setup(self)
@@ -19,6 +21,13 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
         self.ax_map = dict(X=0, Y=1, Z=2)
         #Hardware
         self.stage = self.app.hardware.mcl_xyz_stage
+        
+
+        
+    def setup_figure(self):
+        BaseRaster2DSlowScan.setup_figure(self)
+        self.details_ui = self.set_details_widget(widget=self.settings.New_UI(include=['h_axis', 'v_axis']))
+        
 
     def move_position_start(self, h,v):
         #self.stage.y_position.update_value(x)
