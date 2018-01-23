@@ -26,7 +26,7 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
         
     def setup_figure(self):
         BaseRaster2DSlowScan.setup_figure(self)
-        self.details_ui = self.set_details_widget(widget=self.settings.New_UI(include=['h_axis', 'v_axis']))
+        self.set_details_widget(widget=self.settings.New_UI(include=['h_axis', 'v_axis']))
         
 
     def move_position_start(self, h,v):
@@ -110,9 +110,24 @@ class Delay_MCL_2DSlowScan(MCLStage2DSlowScan):
     
     name = 'Delay_MCL_2DSlowScan'
 
+    def setup_figure(self):
+        MCLStage2DSlowScan.setup_figure(self)
+        self.set_details_widget(widget=self.settings.New_UI(include=['h_axis', 'v_axis', 'pixel_time', 'frame_time']))
+
+
     def scan_specific_setup(self):
-        self.settings['pixel_time'] = 0.01
+        #self.settings['pixel_time'] = 0.01
         self.settings.pixel_time.change_readonly(False)
         
     def collect_pixel(self, pixel_num, k, j, i):
         time.sleep(self.settings['pixel_time'])
+        
+    def post_scan_cleanup(self):
+        pass
+        
+    def update_display(self):
+        #MCLStage2DSlowScan.update_display(self)
+        self.stage.settings.x_position.read_from_hardware()
+        self.stage.settings.y_position.read_from_hardware()
+        if self.stage.nanodrive.num_axes > 2:
+            self.stage.settings.z_position.read_from_hardware()
