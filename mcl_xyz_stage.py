@@ -159,6 +159,7 @@ class MclXYZStageHW(HardwareComponent):
         
         self.move_speed.hardware_read_func = self.nanodrive.get_max_speed
         self.move_speed.hardware_set_func =  self.nanodrive.set_max_speed
+        self.move_speed.write_to_hardware()
         
         self.read_from_hardware()
 
