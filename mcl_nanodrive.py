@@ -252,16 +252,19 @@ class MCLNanoDrive(object):
     def get_pos(self):
         self.x_pos = self.singleReadN(1)
         self.y_pos = self.singleReadN(2)
-        self.z_pos = self.singleReadN(3)
-        
+        if self.num_axes > 2:
+            self.z_pos = self.singleReadN(3)
+        else:
+            self.z_pos = -1
+            
         return (self.x_pos, self.y_pos, self.z_pos)
     
     def singleReadN(self, axis):
         with self.lock:
             resp = madlib.MCL_SingleReadN(axis, self._handle)
         if resp in self.MCL_ERROR_CODES:
-            #raise IOError(self.MCL_ERROR_CODES[resp])
-            print('singleReadN', self.MCL_ERROR_CODES[resp])
+            raise IOError("MCL singleReadN Error: {}".format(self.MCL_ERROR_CODES[resp]))
+            #print('singleReadN', self.MCL_ERROR_CODES[resp])
         return resp
     
     def monitorN(self, pos, axis):

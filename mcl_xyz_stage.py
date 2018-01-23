@@ -54,37 +54,12 @@ class MclXYZStageHW(HardwareComponent):
         
         
         self.move_speed = self.add_logged_quantity(name='move_speed',
-                                                             initial = 1.0,
+                                                             initial = 100.0,
                                                              unit = "um/s",
                                                              vmin = 1e-4,
                                                              vmax = 1000,
                                                              si = False,
                                                              dtype=float)        
-        
-        # connect GUI
-        if hasattr(self.app.ui, "cx_doubleSpinBox"):
-            self.x_position.connect_bidir_to_widget(self.app.ui.cx_doubleSpinBox)
-            self.app.ui.x_set_lineEdit.returnPressed.connect(self.x_target.update_value)
-            self.app.ui.x_set_lineEdit.returnPressed.connect(lambda: self.app.ui.x_set_lineEdit.setText(""))
-
-        if hasattr(self.app.ui, "cy_doubleSpinBox"):
-            self.y_position.connect_bidir_to_widget(self.app.ui.cy_doubleSpinBox)
-            self.app.ui.y_set_lineEdit.returnPressed.connect(self.y_target.update_value)
-            self.app.ui.y_set_lineEdit.returnPressed.connect(lambda: self.app.ui.y_set_lineEdit.setText(""))
-
-        if hasattr(self.app.ui, "cz_doubleSpinBox"):
-            self.z_position.connect_bidir_to_widget(self.app.ui.cz_doubleSpinBox)
-            self.app.ui.z_set_lineEdit.returnPressed.connect(self.z_target.update_value)
-            self.app.ui.z_set_lineEdit.returnPressed.connect(lambda: self.app.ui.z_set_lineEdit.setText(""))
-
-        if hasattr(self.app.ui, "nanodrive_move_slow_doubleSpinBox"):
-            self.move_speed.connect_bidir_to_widget(
-                                  self.app.ui.nanodrive_move_slow_doubleSpinBox)
-        
-        if hasattr(self.app.ui, "h_axis_comboBox"):
-            self.h_axis.connect_bidir_to_widget(self.app.ui.h_axis_comboBox)
-        if hasattr(self.app.ui, "v_axis_comboBox"):
-            self.v_axis.connect_bidir_to_widget(self.app.ui.v_axis_comboBox)
         
         # connect logged quantities together
         self.x_target.updated_value[()].connect(self.read_pos)
@@ -104,6 +79,8 @@ class MclXYZStageHW(HardwareComponent):
         new_pos[self.MCL_AXIS_ID['X']-1] = x
         new_pos[self.MCL_AXIS_ID['Y']-1] = y
         new_pos[self.MCL_AXIS_ID['Z']-1] = z
+        if self.nanodrive.num_axes < 3:
+            new_pos[2] = None
         self.nanodrive.set_pos_slow(*new_pos)
 
         self.read_pos()
@@ -113,6 +90,8 @@ class MclXYZStageHW(HardwareComponent):
         new_pos[self.MCL_AXIS_ID['X']-1] = x
         new_pos[self.MCL_AXIS_ID['Y']-1] = y
         new_pos[self.MCL_AXIS_ID['Z']-1] = z
+        if self.nanodrive.num_axes < 3:
+            new_pos[2] = None
         self.nanodrive.set_pos(*new_pos)
 
     
@@ -165,14 +144,11 @@ class MclXYZStageHW(HardwareComponent):
 
     def disconnect(self):
         #disconnect logged quantities from hardware
-        for lq in self.settings.as_dict().values():
-            lq.hardware_read_func = None
-            lq.hardware_set_func = None
-        
+        self.settings.disconnect_all_from_hardware()
+
         #disconnect hardware
         if hasattr(self, 'nanodrive'):
             self.nanodrive.close()
-        
             # clean up hardware object
             del self.nanodrive
         
