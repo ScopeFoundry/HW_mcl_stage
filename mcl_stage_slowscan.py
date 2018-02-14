@@ -57,8 +57,9 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
         self.stage.move_pos_fast(*coords)
         #self.stage.move_pos_fast(x, y, None)
         #self.current_stage_pos_arrow.setPos(x, y)
-        #self.stage.settings.x_position.read_from_hardware()
-        #self.stage.settings.y_position.read_from_hardware()
+        self.stage.settings.x_position.read_from_hardware()
+        self.stage.settings.y_position.read_from_hardware()
+        self.stage.settings.z_position.read_from_hardware()
         
     
 class MCLStage2DFrameSlowScan(BaseRaster2DFrameSlowScan):
