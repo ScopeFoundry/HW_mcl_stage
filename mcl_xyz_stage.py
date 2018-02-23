@@ -21,6 +21,7 @@ class MclXYZStageHW(HardwareComponent):
         # Created logged quantities
         lq_params = dict(  dtype=float, ro=True,
                            initial = -1,
+                           spinbox_decimals=3,
                            vmin=-1,
                            vmax=100,
                            si = False,
@@ -31,6 +32,7 @@ class MclXYZStageHW(HardwareComponent):
         
         lq_params = dict(  dtype=float, ro=False,
                            initial = -1,
+                           spinbox_decimals=3,
                            vmin=-1,
                            vmax=100,
                            unit='um')
@@ -39,7 +41,9 @@ class MclXYZStageHW(HardwareComponent):
         self.z_target = self.add_logged_quantity("z_target", **lq_params)        
         
         
-        lq_params = dict(unit="um", dtype=float, ro=True, initial=100, si=False)
+        lq_params = dict(unit="um", dtype=float, ro=True, initial=100, 
+                         spinbox_decimals=3,
+                         si=False)
         self.x_max = self.add_logged_quantity("x_max", **lq_params)
         self.y_max = self.add_logged_quantity("y_max", **lq_params)
         self.z_max = self.add_logged_quantity("z_max", **lq_params)
