@@ -262,7 +262,7 @@ class MCLNanoDrive(object):
     def singleReadN(self, axis):
         with self.lock:
             resp = madlib.MCL_SingleReadN(axis, self._handle)
-        if resp in self.MCL_ERROR_CODES:
+        if resp < 0 and resp in self.MCL_ERROR_CODES:
             raise IOError("MCL singleReadN Error: {}".format(self.MCL_ERROR_CODES[resp]))
             #print('singleReadN', self.MCL_ERROR_CODES[resp])
         return resp
@@ -270,7 +270,7 @@ class MCLNanoDrive(object):
     def monitorN(self, pos, axis):
         with self.lock:
             resp = madlib.MCL_MonitorN(pos, axis, self._handle)
-        if resp in self.MCL_ERROR_CODES:
+        if resp < 0 and resp in self.MCL_ERROR_CODES:
             #raise IOError(self.MCL_ERROR_CODES[resp])
             print('monitorN', pos, axis, self.MCL_ERROR_CODES[resp])        
         return resp
