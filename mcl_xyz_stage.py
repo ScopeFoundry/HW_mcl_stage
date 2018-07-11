@@ -101,7 +101,7 @@ class MclXYZStageHW(HardwareComponent):
     
     @QtCore.Slot()
     def read_pos(self):
-        self.log.debug("read_pos")
+        if self.settings['debug_mode']: self.log.debug("read_pos")
         if self.settings['connected']:
             self.x_position.read_from_hardware()
             self.y_position.read_from_hardware()
