@@ -3,6 +3,7 @@ import ctypes
 from ctypes import c_int, c_byte, c_ubyte, c_short, c_double, cdll, pointer, byref
 import time
 import numpy as np
+import threading
 
 
 ### IMPORTANT NOTE: DLL's of the same MADLIB version can be different for different
@@ -83,6 +84,9 @@ class MCLProductInformation(ctypes.Structure):
 class MCLNanoDrive(object):
 
     def __init__(self, debug=False):
+        
+        self.lock = threading.Lock()
+        
         self.debug = debug
         
         self.MCL_ERROR_CODES = MCL_ERROR_CODES
@@ -140,6 +144,8 @@ class MCLNanoDrive(object):
         
         self.set_max_speed(100)  # default speed for slow movement is 100 microns/second
         #self.get_pos()
+        
+        self.lock 
 
     def set_max_speed(self, max_speed):
         '''
@@ -242,8 +248,11 @@ class MCLNanoDrive(object):
     def get_pos(self):
         self.x_pos = self.singleReadN(1)
         self.y_pos = self.singleReadN(2)
-        self.z_pos = self.singleReadN(3)
-        
+        if self.num_axes > 2:
+            self.z_pos = self.singleReadN(3)
+        else:
+            self.z_pos = -1
+            
         return (self.x_pos, self.y_pos, self.z_pos)
     
     def singleReadN(self, axis):
