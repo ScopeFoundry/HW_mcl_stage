@@ -8,7 +8,7 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
     
     name = "MCLStage2DSlowScan"
     def __init__(self, app):
-        BaseRaster2DSlowScan.__init__(self, app, h_limits=(0,75), v_limits=(0,75),
+        BaseRaster2DSlowScan.__init__(self, app, h_limits=(1,74), v_limits=(1,74),
                                       h_spinbox_step = 0.1, v_spinbox_step=0.1,
                                       h_unit="um", v_unit="um")        
     
