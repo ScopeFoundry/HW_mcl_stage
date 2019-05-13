@@ -87,6 +87,13 @@ class MclXYZStageHW(HardwareComponent):
             new_pos[2] = None
         self.nanodrive.set_pos_slow(*new_pos)
 
+        if x is not None: 
+            self.settings.x_target.update_value(x, update_hardware=False)
+        if y is not None:
+            self.settings.y_target.update_value(y, update_hardware=False)
+        if z is not None:
+            self.settings.z_target.update_value(z, update_hardware=False)
+
         self.read_pos()
         
     def move_pos_fast(self,  x=None,y=None,z=None):
@@ -97,6 +104,7 @@ class MclXYZStageHW(HardwareComponent):
         if self.nanodrive.num_axes < 3:
             new_pos[2] = None
         self.nanodrive.set_pos(*new_pos)
+        
 
     
     @QtCore.Slot()
@@ -145,6 +153,18 @@ class MclXYZStageHW(HardwareComponent):
         self.move_speed.write_to_hardware()
         
         self.read_from_hardware()
+        
+        self.settings.x_target.change_min_max(0.1, self.x_max.value-0.1)
+        self.settings.y_target.change_min_max(0.1, self.y_max.value-0.1)
+        if self.nanodrive.num_axes > 2:
+            self.settings.z_target.change_min_max(0.1, self.z_max.value-0.1)
+        
+        self.settings.x_target.update_value(self.settings['x_position'], update_hardware=False)
+        self.settings.y_target.update_value(self.settings['y_position'], update_hardware=False)
+        if self.nanodrive.num_axes > 2:
+            self.settings.z_target.update_value(self.settings['z_position'], update_hardware=False)
+
+        
 
     def disconnect(self):
         #disconnect logged quantities from hardware

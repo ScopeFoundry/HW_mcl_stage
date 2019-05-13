@@ -22,6 +22,20 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
         #Hardware
         self.stage = self.app.hardware.mcl_xyz_stage
         
+        self.settings.h_axis.add_listener(self.on_new_stage_limits)
+        self.settings.v_axis.add_listener(self.on_new_stage_limits)
+        self.stage.settings.x_max.add_listener(self.on_new_stage_limits)
+        
+    def on_new_stage_limits(self):
+        h_axis = self.settings['h_axis'].lower()
+        v_axis = self.settings['v_axis'].lower()
+        h_max = self.stage.settings[h_axis + '_max']
+        v_max = self.stage.settings[v_axis + '_max']
+        
+        self.set_h_limits(0.1, h_max-0.1)
+        self.set_v_limits(0.1, v_max-0.1)
+        
+        
 
         
     def setup_figure(self):
