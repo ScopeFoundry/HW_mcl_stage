@@ -94,6 +94,9 @@ class MCLStage2DFrameSlowScan(BaseRaster2DFrameSlowScan):
         
     def move_position_fast(self,  h,v, dh,dv):
         MCLStage2DSlowScan.move_position_fast(self,  h,v, dh,dv)
+    
+    def on_new_stage_limits(self):
+        MCLStage2DSlowScan.on_new_stage_limits(self)
         
         
 class MCLStage3DStackSlowScan(MCLStage2DFrameSlowScan):
