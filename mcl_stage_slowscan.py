@@ -23,10 +23,27 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
         self.stage = self.app.hardware.mcl_xyz_stage
         
 
+
         
     def setup_figure(self):
         BaseRaster2DSlowScan.setup_figure(self)
         self.set_details_widget(widget=self.settings.New_UI(include=['h_axis', 'v_axis']))
+        
+
+    def pre_scan_setup(self):
+        BaseRaster2DSlowScan.pre_scan_setup(self)
+        if hasattr(self.app.settings, 'open_shutter_before_scan'):
+            if self.app.settings.open_shutter_before_scan.val:
+                self.app.hardware.shutter_servo.settings['shutter_open'] = True
+                time.sleep(0.5)
+                
+                
+    def post_scan_cleanup(self):
+        if hasattr(self.app.settings, 'close_shutter_after_scan'):
+            if self.app.settings.close_shutter_after_scan.val:
+                self.app.hardware.shutter_servo.settings['shutter_open'] = False  
+            
+
         
 
     def move_position_start(self, h,v):
