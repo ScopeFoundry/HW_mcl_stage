@@ -8,7 +8,7 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
     
     name = "MCLStage2DSlowScan"
     def __init__(self, app):
-        BaseRaster2DSlowScan.__init__(self, app, h_limits=(0,75), v_limits=(0,75),
+        BaseRaster2DSlowScan.__init__(self, app, h_limits=(1,74), v_limits=(1,74),
                                       h_spinbox_step = 0.1, v_spinbox_step=0.1,
                                       h_unit="um", v_unit="um")        
     
@@ -21,6 +21,20 @@ class MCLStage2DSlowScan(BaseRaster2DSlowScan):
         self.ax_map = dict(X=0, Y=1, Z=2)
         #Hardware
         self.stage = self.app.hardware.mcl_xyz_stage
+        
+        self.settings.h_axis.add_listener(self.on_new_stage_limits)
+        self.settings.v_axis.add_listener(self.on_new_stage_limits)
+        self.stage.settings.x_max.add_listener(self.on_new_stage_limits)
+        
+    def on_new_stage_limits(self):
+        h_axis = self.settings['h_axis'].lower()
+        v_axis = self.settings['v_axis'].lower()
+        h_max = self.stage.settings[h_axis + '_max']
+        v_max = self.stage.settings[v_axis + '_max']
+        
+        self.set_h_limits(0.1, h_max-0.1)
+        self.set_v_limits(0.1, v_max-0.1)
+        
         
 
 
@@ -97,6 +111,9 @@ class MCLStage2DFrameSlowScan(BaseRaster2DFrameSlowScan):
         
     def move_position_fast(self,  h,v, dh,dv):
         MCLStage2DSlowScan.move_position_fast(self,  h,v, dh,dv)
+    
+    def on_new_stage_limits(self):
+        MCLStage2DSlowScan.on_new_stage_limits(self)
         
         
 class MCLStage3DStackSlowScan(MCLStage2DFrameSlowScan):
