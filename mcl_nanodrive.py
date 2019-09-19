@@ -285,7 +285,8 @@ class MCLNanoDrive(object):
     def set_pos_ax_slow(self, pos, axis):
         if self.debug: print("set_pos_slow_ax ", pos, axis)
         assert 1 <= axis <= self.num_axes
-        assert 0 <= pos <= self.cal[axis]
+        #assert 0 <= pos <= self.cal[axis]
+        pos = np.clip(pos, 0, self.cal[axis])
         
         start = self.get_pos_ax(axis)
         
