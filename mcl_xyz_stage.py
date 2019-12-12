@@ -70,6 +70,9 @@ class MclXYZStageHW(HardwareComponent):
         self.y_target.updated_value[()].connect(self.read_pos)
         self.z_target.updated_value[()].connect(self.read_pos)
         
+        # Actions
+        self.add_operation('GOTO_Center_XY', self.go_to_center_xy)
+        
     def on_update_xyz_axis_map(self):
         print("on_update_xyz_axis_map")
         map_str = self.xyz_axis_map.val
@@ -195,4 +198,9 @@ class MclXYZStageHW(HardwareComponent):
     @property
     def z_axis_id(self):
         return self.MCL_AXIS_ID["Z"]
+    
+    
+    def go_to_center_xy(self):
+        self.settings['x_target'] = self.settings['x_max']*0.5
+        self.settings['y_target'] = self.settings['y_max']*0.5
     
