@@ -10,6 +10,7 @@ try:
 except Exception as err:
     print("Cannot load required modules for MclXYZStage:", err)
 from qtpy import QtCore
+import time
 
 
 class MclXYZStageHW(HardwareComponent):
@@ -23,7 +24,7 @@ class MclXYZStageHW(HardwareComponent):
                            initial = -1,
                            spinbox_decimals=3,
                            vmin=-1,
-                           vmax=100,
+                           vmax=300,
                            si = False,
                            unit='um')
         self.x_position = self.add_logged_quantity("x_position", **lq_params)
@@ -34,14 +35,14 @@ class MclXYZStageHW(HardwareComponent):
                            initial = -1,
                            spinbox_decimals=3,
                            vmin=-1,
-                           vmax=100,
+                           vmax=300,
                            unit='um')
         self.x_target = self.add_logged_quantity("x_target", **lq_params)
         self.y_target = self.add_logged_quantity("y_target", **lq_params)       
         self.z_target = self.add_logged_quantity("z_target", **lq_params)        
         
         
-        lq_params = dict(unit="um", dtype=float, ro=True, initial=100, 
+        lq_params = dict(unit="um", dtype=float, ro=True, initial=300, 
                          spinbox_decimals=3,
                          si=False)
         self.x_max = self.add_logged_quantity("x_max", **lq_params)
@@ -203,4 +204,11 @@ class MclXYZStageHW(HardwareComponent):
     def go_to_center_xy(self):
         self.settings['x_target'] = self.settings['x_max']*0.5
         self.settings['y_target'] = self.settings['y_max']*0.5
-    
+        
+        
+    def threaded_update(self):
+        self.x_position.read_from_hardware()
+        self.y_position.read_from_hardware()
+        if self.nanodrive.num_axes > 2:
+            self.z_position.read_from_hardware()
+        time.sleep(0.1)    
