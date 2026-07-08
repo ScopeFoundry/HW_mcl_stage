@@ -67,9 +67,9 @@ class MclXYZStageHW(HardwareComponent):
                                                              dtype=float)        
         
         # connect logged quantities together
-        self.x_target.updated_value[()].connect(self.read_pos)
-        self.y_target.updated_value[()].connect(self.read_pos)
-        self.z_target.updated_value[()].connect(self.read_pos)
+        self.x_target.add_listener(self.read_pos)
+        self.y_target.add_listener(self.read_pos)
+        self.z_target.add_listener(self.read_pos)
         
         # Actions
         self.add_operation('GOTO_Center_XY', self.go_to_center_xy)
@@ -111,7 +111,6 @@ class MclXYZStageHW(HardwareComponent):
         
 
     
-    @QtCore.Slot()
     def read_pos(self):
         if self.settings['debug_mode']: self.log.debug("read_pos")
         if self.settings['connected']:
